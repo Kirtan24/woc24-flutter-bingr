@@ -1,0 +1,82 @@
+[
+    {
+        "provider_name": "Netflix",
+        "provider_id": 8
+    },
+    {
+        "provider_name": "Amazon Prime Video",
+        "provider_id": 119
+    },
+    {
+        "provider_name": "Apple TV Plus",
+        "provider_id": 350
+    },
+    {
+        "provider_name": "Apple TV",
+        "provider_id": 2
+    },
+    {
+        "provider_name": "Crunchyroll",
+        "provider_id": 283
+    },
+    {
+        "provider_name": "Hotstar",
+        "provider_id": 122
+    },
+    {
+        "provider_name": "Jio Cinema",
+        "provider_id": 220
+    },
+    {
+        "provider_name": "Zee5",
+        "provider_id": 232
+    },
+    {
+        "provider_name": "Google Play Movies",
+        "provider_id": 3
+    },
+    {
+        "provider_name": "Sony Liv",
+        "provider_id": 237
+    },
+    {
+        "provider_name": "YouTube",
+        "provider_id": 192
+    },
+    {
+        "provider_name": "Netflix Kids",
+        "provider_id": 175
+    },
+    {
+        "provider_name": "Hungama Play",
+        "provider_id": 437
+    },
+    {
+        "provider_name": "Alt Balaji",
+        "provider_id": 319
+    },
+    {
+        "provider_name": "EPIC ON",
+        "provider_id": 476
+    },
+    {
+        "provider_name": "ShemarooMe",
+        "provider_id": 474
+    },
+    {
+        "provider_name": "MX Player",
+        "provider_id": 515
+    },
+    {
+        "provider_name": "Amazon Video",
+        "provider_id": 10
+    },
+    {
+        "provider_name": "Amazon MX Player",
+        "provider_id": 1898
+    },
+    {
+        "provider_name": "Bookmyshow",
+        "provider_id": 124
+    }
+]
