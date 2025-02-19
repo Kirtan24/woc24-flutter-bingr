@@ -1,11 +1,13 @@
-import 'package:bingr/common/text_field_widget.dart';
-import 'package:bingr/fetures/details/movie_details.dart';
-import 'package:bingr/screens/home/widgets/movie_card.dart';
+import 'package:bingr/common/widgets/text_field_widget.dart';
+import 'package:bingr/screens/details/movie_details.dart';
+import 'package:bingr/common/widgets/movie_card.dart';
+import 'package:bingr/screens/search/widgets/genre_card.dart';
+import 'package:bingr/screens/search/widgets/genre_movie_page.dart';
 import 'package:bingr/services/api_service.dart';
 import 'package:bingr/util/helpers/helper_function.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
-// import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:speech_to_text/speech_to_text.dart';
 
 class Search extends StatefulWidget {
   final FocusNode focusNode;
@@ -20,13 +22,72 @@ class _SearchState extends State<Search> {
   List<dynamic> searchResults = [];
   TextEditingController searchController = TextEditingController();
   bool isLoading = false;
-  // late stt.SpeechToText _speech;
+  bool isSearching = false;
+
+  final SpeechToText _stt = SpeechToText();
+  String query = "";
   bool isListening = false;
+
+  final List<Map<String, dynamic>> genres = [
+    {"id": 28, "name": "Action"},
+    {"id": 12, "name": "Adventure"},
+    {"id": 16, "name": "Animation"},
+    {"id": 35, "name": "Comedy"},
+    {"id": 80, "name": "Crime"},
+    {"id": 99, "name": "Documentary"},
+    {"id": 18, "name": "Drama"},
+    {"id": 10751, "name": "Family"},
+    {"id": 14, "name": "Fantasy"},
+    {"id": 36, "name": "History"},
+    {"id": 27, "name": "Horror"},
+    {"id": 10402, "name": "Music"},
+    {"id": 9648, "name": "Mystery"},
+    {"id": 10749, "name": "Romance"},
+    {"id": 878, "name": "Science Fiction"},
+    {"id": 10770, "name": "TV Movie"},
+    {"id": 53, "name": "Thriller"},
+    {"id": 10752, "name": "War"},
+    {"id": 37, "name": "Western"}
+  ];
+
+  final List<Color> _allColors = [
+    Colors.red,
+    Colors.blue,
+    Colors.green,
+    Colors.orange,
+    Colors.purple,
+    Colors.pink,
+    Colors.lime,
+    Colors.teal,
+    Colors.deepOrange,
+    Colors.indigo,
+    Colors.amber,
+    Colors.cyan,
+    Colors.lightGreen,
+    Colors.blueGrey,
+    Colors.white,
+    Colors.grey,
+    Colors.lightBlue,
+    Colors.deepPurple,
+    Colors.yellow,
+  ];
 
   @override
   void initState() {
     super.initState();
-    // _speech = stt.SpeechToText();
+    widget.focusNode.addListener(_onFocusChange);
+  }
+
+  @override
+  void dispose() {
+    widget.focusNode.removeListener(_onFocusChange);
+    super.dispose();
+  }
+
+  void _onFocusChange() {
+    if (!widget.focusNode.hasFocus) {
+      // Perform any actions needed when the search bar loses focus
+    }
   }
 
   void _searchMovies(String query) async {
@@ -34,6 +95,7 @@ class _SearchState extends State<Search> {
 
     setState(() {
       isLoading = true;
+      isSearching = true;
     });
 
     List<dynamic> results = await _movieService.searchMovies(query);
@@ -44,50 +106,51 @@ class _SearchState extends State<Search> {
     });
   }
 
-  void _startListening() {
-    setState(() {
-      isListening = true;
-    });
+  void initSpeechState() async {
+    try {
+      bool available = await _stt.initialize();
+      if (available) {
+        setState(() {});
+      } else {
+        print('Error: Speech-to-text not available.');
+      }
+    } catch (e) {
+      print('Exception during speech initialization: $e');
+    }
+  }
+
+  void _startListening() async {
+    try {
+      initSpeechState();
+      await _stt.listen(
+        onResult: (result) {
+          if (result.recognizedWords.isNotEmpty) {
+            setState(() {
+              query = result.recognizedWords;
+              searchController.text = query;
+            });
+            _searchMovies(result.recognizedWords);
+          }
+        },
+      );
+      setState(() {
+        isListening = true;
+      });
+    } catch (e) {
+      print('Exception while starting listening: $e');
+    }
   }
 
   void _stopListening() {
-    setState(() {
-      isListening = false;
-    });
+    try {
+      _stt.stop();
+      setState(() {
+        isListening = false;
+      });
+    } catch (e) {
+      print('Exception while stopping listening: $e');
+    }
   }
-
-  // void _startListening() async {
-  //   bool available = await _speech.initialize(
-  //     onStatus: (status) {
-  //       print("Speech recognition status: $status");
-  //     },
-  //     onError: (error) {
-  //       print("Speech recognition error: $error");
-  //     },
-  //   );
-
-  //   if (available) {
-  //     setState(() {
-  //       isListening = true;
-  //     });
-
-  //     _speech.listen(
-  //       onResult: (result) {
-  //         setState(() {
-  //           searchController.text = result.recognizedWords;
-  //         });
-  //         _searchMovies(result.recognizedWords);
-  //       },
-  //     );
-  //   }
-  // }
-
-  // void _stopListening() {
-  //   setState(() {
-  //     isListening = false;
-  //   });
-  //   _speech.stop();
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -109,6 +172,7 @@ class _SearchState extends State<Search> {
                             searchController.clear();
                             searchResults.clear();
                             isListening = false;
+                            isSearching = false;
                           });
                         },
                       )
@@ -134,6 +198,11 @@ class _SearchState extends State<Search> {
                       ),
                 hintText: "Search",
                 onChanged: _searchMovies,
+                onTap: () {
+                  setState(() {
+                    isSearching = true;
+                  });
+                },
               ),
               const SizedBox(height: 10),
               Expanded(
@@ -143,40 +212,67 @@ class _SearchState extends State<Search> {
                           color: Color.fromARGB(255, 245, 71, 32),
                         ),
                       )
-                    : searchResults.isEmpty
-                        ? const Center(
-                            child: Text("No results found"),
-                          )
+                    : isSearching
+                        ? searchResults.isEmpty
+                            ? const Center(
+                                child: Text("No results found"),
+                              )
+                            : GridView.builder(
+                                gridDelegate:
+                                    const SliverGridDelegateWithMaxCrossAxisExtent(
+                                  maxCrossAxisExtent: 200,
+                                  mainAxisExtent: 240,
+                                ),
+                                itemCount: searchResults.length,
+                                itemBuilder: (context, index) {
+                                  final movie = searchResults[index];
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => MovieDetails(
+                                            movieId: movie['id'],
+                                            type: "movie",
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: MovieCard(
+                                      movieId: movie['id'],
+                                      imageUrl:
+                                          'https://image.tmdb.org/t/p/original${movie.containsKey('poster_path') ? movie['poster_path'] : movie['backdrop_path']}',
+                                      movieTitle: movie.containsKey('title')
+                                          ? movie['title']
+                                          : movie['name'],
+                                      type: movie['media_type'],
+                                    ),
+                                  );
+                                },
+                              )
                         : GridView.builder(
                             gridDelegate:
                                 const SliverGridDelegateWithMaxCrossAxisExtent(
-                              maxCrossAxisExtent: 200,
-                              mainAxisExtent: 240,
+                              maxCrossAxisExtent: 240,
+                              mainAxisExtent: 120,
                             ),
-                            itemCount: searchResults.length,
+                            itemCount: genres.length,
                             itemBuilder: (context, index) {
-                              final movie = searchResults[index];
-                              return GestureDetector(
+                              final genre = genres[index];
+                              return GenreCard(
+                                genreName: genre['name'],
+                                color: _allColors[index % _allColors.length],
                                 onTap: () {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => MovieDetails(
-                                        movieId: movie['id'],
-                                        type: "movie",
+                                      builder: (context) => GenreMoviesPage(
+                                        genreId: genre['id'],
+                                        genreName: genre['name'],
                                       ),
                                     ),
                                   );
                                 },
-                                child: MovieCard(
-                                  movieId: movie['id'],
-                                  imageUrl:
-                                      'https://image.tmdb.org/t/p/original${movie.containsKey('poster_path') ? movie['poster_path'] : movie['backdrop_path']}',
-                                  movieTitle: movie.containsKey('title')
-                                      ? movie['title']
-                                      : movie['name'],
-                                  type: movie['media_type'],
-                                ),
                               );
                             },
                           ),

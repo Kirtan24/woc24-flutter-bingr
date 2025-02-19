@@ -60,17 +60,24 @@ class _ArtistDetailState extends State<ArtistDetail> {
         centerTitle: true,
         title: Text(artistDetails?['name'] ?? "Artist Details"),
         leading: IconButton(
-          icon: const Icon(Iconsax.arrow_left_2, color: Colors.white),
+          icon: Icon(
+            Iconsax.arrow_left_2,
+            color: const Color.fromARGB(255, 245, 71, 32),
+          ),
           onPressed: () => Navigator.pop(context),
         ),
-        backgroundColor: Colors.black,
+        iconTheme: IconThemeData(
+          color: const Color.fromARGB(255, 245, 71, 32),
+          size: 30,
+        ),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator(color: Colors.red))
           : artistDetails == null
               ? const Center(
-                  child: Text("No data available",
-                      style: TextStyle(color: Colors.white)),
+                  child: Text(
+                    "No data available",
+                  ),
                 )
               : SingleChildScrollView(
                   child: Column(
@@ -100,7 +107,6 @@ class _ArtistDetailState extends State<ArtistDetail> {
                               style: const TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -125,7 +131,6 @@ class _ArtistDetailState extends State<ArtistDetail> {
                               style: const TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -134,7 +139,6 @@ class _ArtistDetailState extends State<ArtistDetail> {
                                   "No biography available.",
                               style: const TextStyle(
                                 fontSize: 16,
-                                color: Colors.white70,
                                 height: 1.5,
                               ),
                             ),
@@ -154,11 +158,13 @@ class _ArtistDetailState extends State<ArtistDetail> {
             padding: const EdgeInsets.only(bottom: 8.0),
             child: Row(
               children: [
-                Icon(icon, color: Colors.white, size: 24),
+                Icon(icon, size: 24),
                 const SizedBox(width: 8),
                 Text(
                   text,
-                  style: const TextStyle(fontSize: 18, color: Colors.white70),
+                  style: const TextStyle(
+                    fontSize: 18,
+                  ),
                 ),
               ],
             ),

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -93,29 +94,56 @@ class MovieService {
   }
 
   /// Helper function to fetch movie videos (trailers, teasers)
-  Future<String?> _fetchMovieVideos(int movieId, String mediaType) async {
-    final url =
-        '$_baseUrl/$mediaType/$movieId/videos?api_key=$_tmdbApiKey&language=en-US';
-    final response = await _fetchData(url, "Movie Videos");
+  Future<String?> _fetchMovieVideos(int? movieId, String? mediaType) async {
+    try {
+      if (movieId == null || mediaType == null || mediaType.isEmpty) {
+        debugPrint("Error: Invalid movie ID or media type.");
+        return null;
+      }
 
-    if (response == null || !response.containsKey('results')) {
-      return null; // No videos found
+      final url =
+          '$_baseUrl/$mediaType/$movieId/videos?api_key=$_tmdbApiKey&language=en-US';
+
+      final response = await _fetchData(url, "Movie Videos");
+
+      if (response == null) {
+        debugPrint("Error: Failed to fetch movie videos. Response is null.");
+        return null;
+      }
+
+      if (!response.containsKey('results') || response['results'] is! List) {
+        debugPrint(
+            "Error: Invalid response format. 'results' key missing or not a list.");
+        return null;
+      }
+
+      List<dynamic> videos = response['results'];
+
+      if (videos.isEmpty) {
+        debugPrint("No videos available for movie ID: $movieId");
+        return null;
+      }
+
+      var trailer = videos.firstWhere(
+        (video) =>
+            video is Map<String, dynamic> &&
+            video.containsKey('type') &&
+            video.containsKey('site') &&
+            video['type'] == 'Trailer' &&
+            video['site'] == 'YouTube',
+        orElse: () => null,
+      );
+
+      if (trailer == null || !trailer.containsKey('key')) {
+        debugPrint("No YouTube trailer found for movie ID: $movieId");
+        return null;
+      }
+
+      return trailer['key'];
+    } catch (e, stackTrace) {
+      debugPrint("Exception in _fetchMovieVideos: $e\nStackTrace: $stackTrace");
+      return null;
     }
-
-    List<dynamic>? videos = response['results'];
-
-    if (videos == null || videos.isEmpty) {
-      return null; // No videos available
-    }
-
-    // Look for YouTube Trailer first
-    var trailer = videos.firstWhere(
-      (video) => video['type'] == 'Trailer' && video['site'] == 'YouTube',
-      orElse: () => null,
-    );
-
-    // Return only the trailer URL if found, otherwise null
-    return trailer != null ? trailer['key'] : null;
   }
 
   /// Helper function to fetch recommended movies/shows
@@ -142,6 +170,30 @@ class MovieService {
     } catch (error) {
       print("❌ Exception in $apiName API: $error");
       return null;
+    }
+  }
+
+  Future<List<dynamic>> getMoviesByGenre(int genreId) async {
+    final url =
+        "$_baseUrl/discover/movie?api_key=$_tmdbApiKey&with_genres=$genreId";
+    final response = await http.get(Uri.parse(url));
+    return json.decode(response.body)['results'];
+  }
+
+  Future<List<dynamic>> fetchResponse(String endpoint) async {
+    final url = '$_baseUrl$endpoint&api_key=$_tmdbApiKey';
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['results'] ?? [];
+      } else {
+        print("API Error: ${response.statusCode}");
+        return [];
+      }
+    } catch (error) {
+      print("Error fetching movies: $error");
+      return [];
     }
   }
 }

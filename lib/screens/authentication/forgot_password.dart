@@ -1,6 +1,5 @@
-import 'package:bingr/common/text_field_widget.dart';
-import 'package:bingr/fetures/authentication/mail_sent.dart';
-import 'package:bingr/util/constant/image_string.dart';
+import 'package:bingr/common/widgets/text_field_widget.dart';
+import 'package:bingr/screens/authentication/mail_sent.dart';
 import 'package:bingr/util/helpers/helper_function.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -59,7 +58,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Image.asset(
-                      BImageString.appLogo,
+                      "assets/logos/logo-3-image.png",
                       fit: BoxFit.contain,
                       width: 100,
                       height: 100,

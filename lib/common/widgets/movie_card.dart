@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:bingr/fetures/details/movie_details.dart';
+import 'package:bingr/screens/details/movie_details.dart';
 
 class MovieCard extends StatelessWidget {
   const MovieCard({
@@ -8,7 +8,7 @@ class MovieCard extends StatelessWidget {
     required this.movieId,
     required this.imageUrl,
     required this.movieTitle,
-    required this.type, // Added type parameter
+    required this.type,
   });
 
   final dynamic movieId;
@@ -16,13 +16,14 @@ class MovieCard extends StatelessWidget {
   final dynamic movieTitle;
   final String type;
 
-  static const String placeholderUrl =
-      'https://placehold.co/200x300?text=No%20Image%20Available';
+  static const String placeholderUrl = 'https://placehold.co/200x300/png';
 
   @override
   Widget build(BuildContext context) {
     final String validImageUrl =
         (imageUrl != null && imageUrl!.isNotEmpty) ? imageUrl! : placeholderUrl;
+
+    print(type);
 
     return GestureDetector(
       onTap: () {

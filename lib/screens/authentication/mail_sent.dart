@@ -1,4 +1,4 @@
-import 'package:bingr/fetures/authentication/login.dart';
+import 'package:bingr/screens/authentication/login.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 

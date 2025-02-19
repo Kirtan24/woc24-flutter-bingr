@@ -1,10 +1,9 @@
 import 'package:bingr/controllers/login_controller.dart';
-import 'package:bingr/fetures/authentication/forgot_password.dart';
-import 'package:bingr/fetures/authentication/register.dart';
-import 'package:bingr/common/text_field_widget.dart';
-import 'package:bingr/fetures/authentication/validators/firebase_auth_error_handler.dart';
-import 'package:bingr/fetures/authentication/validators/form_validators.dart';
-import 'package:bingr/util/constant/image_string.dart';
+import 'package:bingr/screens/authentication/forgot_password.dart';
+import 'package:bingr/screens/authentication/register.dart';
+import 'package:bingr/common/widgets/text_field_widget.dart';
+import 'package:bingr/util/helpers/firebase_auth_error_handler.dart';
+import 'package:bingr/screens/authentication/validators/form_validators.dart';
 import 'package:bingr/util/helpers/helper_function.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -57,61 +56,67 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() {
       _isLoading = true;
+      _emailError = null;
+      _passwordError = null;
     });
 
     String email = _emailController.text.trim();
     String password = _passwordController.text;
 
     try {
-      await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
 
       if (_isChecked) {
-        await _loginController.saveLoginDetails(
-          email,
-          password,
-          _isChecked,
-        );
+        await _loginController.saveLoginDetails(email, password, _isChecked);
       }
 
       BHelperFunction.showToast(
-        // ignore: use_build_context_synchronously
         context: context,
         message: "Login Success!",
         type: ToastificationType.success,
       );
     } on FirebaseAuthException catch (e) {
+      print("FirebaseAuthException: ${e.code}, ${e.message}");
+
       String errorMessage = FirebaseAuthErrorHandler.handleAuthException(e);
 
-      if (e.code == 'invalid-email' || e.code == 'user-not-found') {
-        setState(() {
-          _emailError = errorMessage;
-          _passwordError = null;
-        });
-      } else if (e.code == 'wrong-password') {
-        setState(() {
-          _passwordError = errorMessage;
-          _emailError = null;
-        });
-      } else {
-        BHelperFunction.showToast(
-          // ignore: use_build_context_synchronously
-          context: context,
-          message: errorMessage,
-          type: ToastificationType.error,
-        );
-      }
-    } catch (e) {
-      print(e);
+      // Show the error message in a toast
       BHelperFunction.showToast(
-        // ignore: use_build_context_synchronously
+        context: context,
+        message: errorMessage,
+        type: ToastificationType.error,
+      );
+
+      // Clear the form fields & reset state
+      setState(() {
+        _emailController.clear();
+        _passwordController.clear();
+        _isChecked = false;
+
+        if (e.code == "invalid-email" || e.code == "user-not-found") {
+          _emailError = errorMessage;
+        } else if (e.code == "wrong-password" ||
+            e.code == "invalid-credential") {
+          _passwordError = errorMessage;
+        }
+      });
+    } catch (e) {
+      print("General Exception: $e");
+
+      // Show a generic error message
+      BHelperFunction.showToast(
         context: context,
         message:
             FirebaseAuthErrorHandler.handleGenericException(e as Exception),
         type: ToastificationType.error,
       );
+
+      // Clear the form fields on any exception
+      setState(() {
+        _emailController.clear();
+        _passwordController.clear();
+        _isChecked = false;
+      });
     } finally {
       setState(() {
         _isLoading = false;
@@ -135,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Image.asset(
-                      BImageString.appLogo,
+                      "assets/logos/logo-3-image.png",
                       fit: BoxFit.contain,
                       width: 100,
                       height: 100,
@@ -165,7 +170,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     Form(
                       key: _formKey,
                       child: Column(
-                        spacing: 10,
                         children: [
                           TextFieldWidget(
                             hintText: "Username",
@@ -181,8 +185,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                 _emailError = FormValidators.validateEmail(
                                     _emailController.text.trim());
                               });
-                              print(_emailError);
                             },
+                          ),
+                          SizedBox(
+                            height: 10,
                           ),
                           TextFieldWidget(
                             hintText: "Password",
@@ -198,7 +204,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                 _passwordError =
                                     FormValidators.validatePassword(
                                         _passwordController.text);
-                                print(_passwordError);
                               });
                             },
                           ),
@@ -249,12 +254,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed: () => _signIn(),
+                              onPressed: _isLoading ? null : _signIn,
                               style: ElevatedButton.styleFrom(
                                 foregroundColor: Colors.white,
                                 textStyle: const TextStyle(
-                                  fontSize: 18, // Text size
-                                  fontWeight: FontWeight.bold, // Font weight
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
                                 ),
                                 padding: EdgeInsets.all(16),
                                 elevation: 5,
@@ -278,6 +283,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           SizedBox(
+                            height: 10,
+                          ),
+                          SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
                               onPressed: () {
@@ -287,7 +295,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 foregroundColor:
                                     const Color.fromARGB(255, 245, 71, 32),
                                 textStyle: const TextStyle(
-                                  fontSize: 18, // Text size
+                                  fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),
                                 padding: EdgeInsets.all(16),
@@ -301,7 +309,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
-                              child: Text("Create Acccount"),
+                              child: Text("Create Account"),
                             ),
                           )
                         ],

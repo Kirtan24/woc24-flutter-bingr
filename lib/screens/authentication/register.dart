@@ -1,6 +1,6 @@
-import 'package:bingr/common/text_field_widget.dart';
-import 'package:bingr/fetures/authentication/login.dart';
-import 'package:bingr/util/constant/image_string.dart';
+import 'package:bingr/common/widgets/text_field_widget.dart';
+import 'package:bingr/screens/authentication/login.dart';
+import 'package:bingr/util/helpers/firebase_auth_error_handler.dart';
 import 'package:bingr/util/helpers/helper_function.dart';
 import 'package:bingr/wrapper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -29,8 +29,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
       String email = _emailController.text.trim();
       String password = _passwordController.text;
 
+      if (username.isEmpty || email.isEmpty || password.isEmpty) {
+        BHelperFunction.showToast(
+          context: context,
+          message: "All fields are required!",
+          type: ToastificationType.warning,
+        );
+        return;
+      }
+
       UserCredential credentials = await _auth.createUserWithEmailAndPassword(
-          email: email, password: password);
+        email: email,
+        password: password,
+      );
 
       await credentials.user?.updateDisplayName(username);
       await credentials.user?.reload();
@@ -41,12 +52,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
 
       Get.offAll(Wrapper());
-    } catch (e) {
-      print(e);
+    } on FirebaseAuthException catch (e) {
+      String errorMessage = FirebaseAuthErrorHandler.handleAuthException(e);
+
       BHelperFunction.showToast(
-        // ignore: use_build_context_synchronously
         context: context,
-        message: "Something Went Wrong!",
+        message: errorMessage,
+        type: ToastificationType.error,
+      );
+    } catch (e) {
+      String errorMessage = FirebaseAuthErrorHandler.handleGenericException(
+          e as FirebaseAuthException);
+
+      BHelperFunction.showToast(
+        context: context,
+        message: errorMessage,
         type: ToastificationType.error,
       );
     }
@@ -72,7 +92,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Image.asset(
-                  BImageString.appLogo,
+                  "assets/logos/logo-3-image.png",
                   fit: BoxFit.contain,
                   width: 100,
                   height: 100,

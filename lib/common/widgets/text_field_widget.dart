@@ -13,6 +13,7 @@ class TextFieldWidget extends StatefulWidget {
   final TextInputType keyboardType;
   final String? Function(String?)? validator;
   final void Function(String)? onChanged;
+  final void Function()? onTap;
 
   const TextFieldWidget({
     super.key,
@@ -26,6 +27,7 @@ class TextFieldWidget extends StatefulWidget {
     this.validator,
     this.onChanged,
     this.suffixIcon,
+    this.onTap,
   });
 
   @override
@@ -42,6 +44,7 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TextFormField(
+          onTap: widget.onTap,
           focusNode: widget.focusNode,
           // showCursor: false,
           controller: widget.textEditingController,

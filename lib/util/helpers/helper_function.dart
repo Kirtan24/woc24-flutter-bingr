@@ -16,7 +16,7 @@ class BHelperFunction {
       title: Text(message),
       padding: const EdgeInsets.all(10),
       borderRadius: BorderRadius.circular(10),
-      autoCloseDuration: const Duration(seconds: 2),
+      autoCloseDuration: const Duration(seconds: 3),
       style: ToastificationStyle.simple,
       type: type,
       backgroundColor: type != null

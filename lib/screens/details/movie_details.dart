@@ -1,6 +1,8 @@
-import 'package:bingr/fetures/details/cast.dart';
+import 'package:bingr/screens/details/widgets/cast.dart';
+import 'package:bingr/screens/details/widgets/trailer_screen.dart';
 import 'dart:convert';
-import 'package:bingr/screens/home/widgets/genres_list.dart';
+import 'package:bingr/common/widgets/genres_list.dart';
+import 'package:bingr/common/widgets/view_more.dart';
 import 'package:bingr/services/api_service.dart';
 import 'package:bingr/util/helpers/helper_function.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -36,7 +38,6 @@ class _MovieDetailsState extends State<MovieDetails> {
   Future<void> clearFavorites() async {
     final prefs = await SharedPreferences.getInstance();
 
-    // Remove the 'favorites' key from SharedPreferences
     await prefs.remove('favorites');
 
     print("Favorites cleared.");
@@ -203,56 +204,18 @@ class _MovieDetailsState extends State<MovieDetails> {
       return;
     }
 
-    YoutubePlayerController _controller = YoutubePlayerController(
-      initialVideoId: videoId,
-      flags: const YoutubePlayerFlags(
-        autoPlay: true,
-        mute: false,
-        enableCaption: true,
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TrailerScreen(youtubeId: videoId),
       ),
     );
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return YoutubePlayerBuilder(
-          player: YoutubePlayer(
-            controller: _controller,
-            showVideoProgressIndicator: true,
-            onEnded: (YoutubeMetaData metaData) {
-              Navigator.pop(context);
-            },
-          ),
-          builder: (context, player) {
-            return AlertDialog(
-              contentPadding: EdgeInsets.zero,
-              content: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: player,
-              ),
-            );
-          },
-        );
-      },
-    ).then((_) {
-      SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-      ]);
-    });
-
-    // Allow auto rotation when playing video
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
   }
 
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Center(
+      return Center(
         child: CircularProgressIndicator(
           color: Color.fromARGB(255, 245, 71, 32),
         ),
@@ -305,14 +268,43 @@ class _MovieDetailsState extends State<MovieDetails> {
         child: Column(
           children: [
             ClipRRect(
-              child: CachedNetworkImage(
-                imageUrl:
-                    'https://image.tmdb.org/t/p/original${movieDetails['backdrop_path']}',
-                fit: BoxFit.cover,
-                height: 400,
-                width: double.infinity,
-                errorWidget: (context, url, error) =>
-                    Icon(Icons.error, color: Colors.red),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20),
+              ),
+              child: Stack(
+                children: [
+                  CachedNetworkImage(
+                    imageUrl:
+                        'https://image.tmdb.org/t/p/original${movieDetails['backdrop_path']}',
+                    fit: BoxFit.cover,
+                    height: 400,
+                    width: double.infinity,
+                    errorWidget: (context, url, error) =>
+                        Icon(Icons.error, color: Colors.red),
+                  ),
+                  Positioned(
+                    bottom: 20,
+                    right: 20,
+                    child: Material(
+                      elevation: 5,
+                      shadowColor: Colors.black54,
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: CachedNetworkImage(
+                          imageUrl:
+                              'https://image.tmdb.org/t/p/original${movieDetails['poster_path']}',
+                          fit: BoxFit.cover,
+                          height: 160,
+                          width: 120,
+                          errorWidget: (context, url, error) =>
+                              Icon(Icons.error, color: Colors.red),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             Container(
@@ -462,13 +454,26 @@ class _MovieDetailsState extends State<MovieDetails> {
                       castList: credits['cast'],
                     ),
 
+                  SizedBox(
+                    height: 10,
+                  ),
+
                   // Recommendations
                   if (recommendations.isNotEmpty)
                     GenresList(
                       title: 'Recommendations',
-                      recommendations: recommendations,
-                      onShowMorePressed: () {},
+                      data: recommendations,
+                      onShowMorePressed: () {
+                        ViewMore(
+                            title: "Recommendations",
+                            items: recommendations,
+                            type: "movie");
+                      },
                     ),
+
+                  SizedBox(
+                    height: 10,
+                  ),
 
                   Container(
                     padding: EdgeInsets.all(8.0),

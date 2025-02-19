@@ -1,16 +1,18 @@
-import 'package:bingr/screens/home/widgets/movie_card.dart';
+import 'package:bingr/common/widgets/movie_card.dart';
 import 'package:flutter/material.dart';
 
 class GenresList extends StatelessWidget {
   final String title;
-  final List<dynamic> recommendations;
+  final List<dynamic> data;
   final Function onShowMorePressed;
+  final String? type;
 
   const GenresList({
     Key? key,
     required this.title,
-    required this.recommendations,
+    required this.data,
     required this.onShowMorePressed,
+    this.type,
   }) : super(key: key);
 
   @override
@@ -52,25 +54,22 @@ class GenresList extends StatelessWidget {
           height: 230,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount:
-                recommendations.length > 10 ? 10 : recommendations.length,
+            itemCount: data.length > 10 ? 10 : data.length,
             itemBuilder: (context, index) {
-              final recommendation = recommendations[index];
-              final movieTitle = recommendation.containsKey('title')
-                  ? recommendation['title']
-                  : recommendation['name'];
-              final movieId = recommendation["id"];
-              final posterPath = recommendation["poster_path"];
+              final d = data[index];
+              final movieTitle =
+                  d.containsKey('title') ? d['title'] : d['name'];
+              final movieId = d["id"];
+              final posterPath = d["poster_path"];
               final imageUrl = posterPath != null
                   ? "https://image.tmdb.org/t/p/w200$posterPath"
                   : "https://placehold.co/300x400";
-              final type = recommendation['media_type'];
 
               return MovieCard(
                 movieId: movieId,
                 imageUrl: imageUrl,
                 movieTitle: movieTitle,
-                type: type,
+                type: type ?? '',
               );
             },
           ),

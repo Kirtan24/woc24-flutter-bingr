@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:bingr/screens/home/widgets/movie_card.dart';
-import 'package:bingr/fetures/details/movie_details.dart';
+import 'package:bingr/common/widgets/movie_card.dart';
+import 'package:bingr/screens/details/movie_details.dart';
 
 class Favorites extends StatefulWidget {
   @override
