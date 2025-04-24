@@ -14,9 +14,12 @@ class Home extends StatefulWidget {
   State<Home> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
   final MovieService _movieService = MovieService();
   late final PageController _pageController;
+
+  @override
+  bool get wantKeepAlive => true;
 
   List<dynamic>? _trendingData;
   List<dynamic>? _topRatedMovies;

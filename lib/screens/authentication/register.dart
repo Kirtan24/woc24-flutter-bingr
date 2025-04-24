@@ -2,7 +2,6 @@ import 'package:bingr/common/widgets/text_field_widget.dart';
 import 'package:bingr/screens/authentication/login.dart';
 import 'package:bingr/util/helpers/firebase_auth_error_handler.dart';
 import 'package:bingr/util/helpers/helper_function.dart';
-import 'package:bingr/wrapper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -47,11 +46,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
       await credentials.user?.reload();
       User? user = _auth.currentUser;
 
-      if (user != null) {
-        print("User registered: ${user.email}, Username: ${user.displayName}");
-      }
+      // if (user != null) {
+      //   print("User registered: ${user.email}, Username: ${user.displayName}");
+      // }
+      // Get.offAll(Wrapper());
 
-      Get.offAll(Wrapper());
+      if (user != null) {
+        // Send Email Verification
+        await user.sendEmailVerification();
+
+        BHelperFunction.showToast(
+          context: context,
+          message:
+              "Verification email sent. Please verify your email before logging in.",
+          type: ToastificationType.success,
+        );
+
+        // Redirect to Login after registration
+        Get.offAll(() => LoginScreen());
+      }
     } on FirebaseAuthException catch (e) {
       String errorMessage = FirebaseAuthErrorHandler.handleAuthException(e);
 
@@ -92,7 +105,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Image.asset(
-                  "assets/logos/logo-3-image.png",
+                  "assets/logos/logo.png",
                   fit: BoxFit.contain,
                   width: 100,
                   height: 100,

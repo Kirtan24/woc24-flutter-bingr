@@ -463,12 +463,7 @@ class _MovieDetailsState extends State<MovieDetails> {
                     GenresList(
                       title: 'Recommendations',
                       data: recommendations,
-                      onShowMorePressed: () {
-                        ViewMore(
-                            title: "Recommendations",
-                            items: recommendations,
-                            type: "movie");
-                      },
+                      type: widget.type,
                     ),
 
                   SizedBox(

@@ -23,8 +23,6 @@ class MovieCard extends StatelessWidget {
     final String validImageUrl =
         (imageUrl != null && imageUrl!.isNotEmpty) ? imageUrl! : placeholderUrl;
 
-    print(type);
-
     return GestureDetector(
       onTap: () {
         Navigator.push(

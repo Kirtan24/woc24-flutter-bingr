@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 class GenresList extends StatelessWidget {
   final String title;
   final List<dynamic> data;
-  final Function onShowMorePressed;
+  final Function? onShowMorePressed;
   final String? type;
 
   const GenresList({
     Key? key,
     required this.title,
     required this.data,
-    required this.onShowMorePressed,
+    this.onShowMorePressed,
     this.type,
   }) : super(key: key);
 
@@ -21,32 +21,27 @@ class GenresList extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Column(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      onShowMorePressed();
-                    },
-                    child: Text(
-                      'Show More',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: const Color.fromARGB(255, 245, 71, 32),
-                      ),
-                    ),
-                  ),
-                ],
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
+              if (onShowMorePressed != null)
+                TextButton(
+                  onPressed: () => onShowMorePressed?.call(),
+                  child: const Text(
+                    'Show More',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Color.fromARGB(255, 245, 71, 32),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -59,11 +54,11 @@ class GenresList extends StatelessWidget {
               final d = data[index];
               final movieTitle =
                   d.containsKey('title') ? d['title'] : d['name'];
-              final movieId = d["id"];
-              final posterPath = d["poster_path"];
+              final movieId = d['id'];
+              final posterPath = d['poster_path'];
               final imageUrl = posterPath != null
-                  ? "https://image.tmdb.org/t/p/w200$posterPath"
-                  : "https://placehold.co/300x400";
+                  ? 'https://image.tmdb.org/t/p/w200$posterPath'
+                  : 'https://placehold.co/300x400';
 
               return MovieCard(
                 movieId: movieId,

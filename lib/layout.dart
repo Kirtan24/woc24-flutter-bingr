@@ -62,22 +62,25 @@ class Layout extends StatelessWidget {
                     snap: true,
                     pinned: false,
                     centerTitle: true,
-                    title: const Text(
-                      "Bingr_",
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 245, 71, 32),
-                        fontWeight: FontWeight.bold,
-                      ),
+                    // title: const Text(
+                    //   "Bingr_",
+                    //   style: TextStyle(
+                    //     color: Color.fromARGB(255, 245, 71, 32),
+                    //     fontWeight: FontWeight.bold,
+                    //   ),
+                    // ),
+                    title: Image.asset(
+                      'assets/logos/branding-image.png',
+                      width: 150,
                     ),
-                    automaticallyImplyLeading:
-                        false, // Disable default back button
+                    automaticallyImplyLeading: false,
                     leading: IconButton(
                       icon: const Icon(
                         Iconsax.menu_1,
                         color: Color.fromARGB(255, 245, 71, 32),
                       ),
                       onPressed: () {
-                        Scaffold.of(context).openDrawer(); // Opens the drawer
+                        Scaffold.of(context).openDrawer();
                       },
                     ),
                   ),
@@ -94,7 +97,7 @@ class Layout extends StatelessWidget {
 
 class NavigationController extends GetxController {
   final Rx<int> selectedIndex = 0.obs;
-  final FocusNode searchPageFocusNode = FocusNode(); // Shared FocusNode
+  final FocusNode searchPageFocusNode = FocusNode();
 
   late final screens = [
     Home(),
